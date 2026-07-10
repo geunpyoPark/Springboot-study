@@ -16,6 +16,7 @@ Spring Boot와 MVC 구조를 학습하기 위한 책 실습 저장소입니다.
 - `/random-quote` 요청을 받아 랜덤 명언 화면 출력
 - `model.addAttribute()`로 Controller에서 View로 데이터 전달
 - 게시글 작성 폼에서 입력값을 `ArticleForm`으로 전달
+- Lombok으로 생성자, `toString()`, 로그 코드 리팩토링
 
 ## 사용 기술
 
@@ -24,6 +25,63 @@ Spring Boot와 MVC 구조를 학습하기 위한 책 실습 저장소입니다.
 - Spring MVC
 - Mustache
 - Gradle
+- Lombok
+
+## Lombok 리팩토링 정리
+
+반복해서 직접 작성하던 생성자와 `toString()` 메서드를 Lombok 어노테이션으로 줄였다.
+
+```java
+@AllArgsConstructor
+@ToString
+public class ArticleForm {
+    private String title;
+    private String content;
+}
+```
+
+`@AllArgsConstructor`는 모든 필드를 받는 생성자를 자동으로 만들어준다.
+
+```java
+new ArticleForm(title, content)
+```
+
+같은 객체 생성이 가능하도록 생성자 코드를 대신 만들어주는 역할이다.
+
+`@ToString`은 객체 내용을 확인할 수 있는 `toString()` 메서드를 자동으로 만들어준다.
+
+```java
+ArticleForm(title=제목, content=내용)
+```
+
+처럼 로그에서 객체 값을 확인할 수 있다.
+
+Controller에서는 `System.out.println()` 대신 `@Slf4j`와 `log.info()`를 사용했다.
+
+```java
+@Slf4j
+@Controller
+public class ArticleController {
+    log.info("form = {}", form);
+}
+```
+
+`@Slf4j`는 로그를 찍기 위한 `log` 객체를 자동으로 만들어준다. `log.info()`는 실행 중 확인할 값을 콘솔에 로그 형태로 남긴다.
+
+Entity에는 `@NoArgsConstructor`도 추가했다.
+
+```java
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Entity
+public class Article {
+}
+```
+
+JPA는 Entity 객체를 만들 때 기본 생성자가 필요할 수 있으므로, Entity에는 `@NoArgsConstructor`를 함께 사용하는 것이 안전하다.
+
+주의할 점은 `@ToString`이 비밀번호 같은 민감한 값까지 출력할 수 있다는 것이다. 지금은 학습용이라 출력 흐름을 확인하지만, 실무에서는 password 같은 값은 로그에 남기지 않도록 조심해야 한다.
 
 ## 실행 방법
 
