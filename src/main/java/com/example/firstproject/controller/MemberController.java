@@ -6,7 +6,9 @@ import com.example.firstproject.repository.MemberRepository; // Member를 DB에 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired; // Spring이 Repository 객체를 자동으로 넣어주게 하는 어노테이션
 import org.springframework.stereotype.Controller; // 이 클래스를 Controller로 등록하는 어노테이션
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping; // GET 요청 주소를 연결하는 어노테이션
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping; // POST 요청 주소를 연결하는 어노테이션
 
 @Slf4j
@@ -39,5 +41,19 @@ public class MemberController { // 회원가입 관련 요청을 처리하는 Co
         Member saved = memberRepository.save(member); // Entity를 DB에 저장하고, 저장된 결과를 saved에 담음
         log.info("saved = {}", saved); // 저장 후 Entity 상태를 로그로 확인, DB가 id를 만들어줌
         return ""; // 아직 다음 화면을 정하지 않은 상태, 교재 진행에 따라 나중에 수정될 수 있음
+    }
+
+    @GetMapping("/members/{id}")
+    public String show(@PathVariable Long id, Model model) {
+        Member member = memberRepository.findById(id).orElse(null);
+        model.addAttribute("member", member);
+        return "members/show";
+    }
+
+    @GetMapping("/members")
+    public String index(Model model) {
+        Iterable<Member> members = memberRepository.findAll();
+        model.addAttribute("members", members);
+        return "members/index";
     }
 }
